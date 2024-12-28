@@ -46,22 +46,19 @@ class DB_Manager:
             last_letter = ''
         else:
             last_letter = last_city[-1].upper()
+            if last_letter in ['Ь', 'Ы', 'Ъ']:
+                last_letter = last_city[-2].upper()
         with conn:
             cur = conn.cursor()
             while True:
                 cur.execute("SELECT city FROM cities WHERE city LIKE ? ORDER BY RANDOM() LIMIT 1", (last_letter + '%',))
                 city = cur.fetchone()[0]
-                print(city)
                 if not city:
-                    print('none')
                     return None
                 if city not in used_cities:
                     if city == []:
-                        print('none')
                         return None
                     else:
-                        print(city)
-
                         return city
     
 
@@ -101,7 +98,6 @@ class DB_Manager:
             score = self.get_score(user_id)
             cur.execute('SELECT count(*) FROM users WHERE score > ?', (score,))
             result = cur.fetchone()[0] + 1
-            print(result)
             return(result)
 
     def get_max_score(self, user_id):
@@ -121,7 +117,6 @@ class DB_Manager:
         with conn:
             cur = conn.cursor()
             cur.execute('SELECT * FROM users ORDER BY score DESC LIMIT 5')
-            # print(cur.fetchall())
             return cur.fetchall()
     
     def get_max_rating(self):
@@ -135,11 +130,9 @@ class DB_Manager:
         conn = sqlite3.connect('data.db')
         with conn:
             cur = conn.cursor()
-            print(city_name)
             if self.check_city(city_name):
                 cur.execute('''SELECT lat, lon FROM cities WHERE city = ?''', (city_name,))
                 coordinates = cur.fetchone()
-                print(coordinates)
                 return coordinates
             else:
                 return None
@@ -175,4 +168,4 @@ class DB_Manager:
 if __name__ == "__main__":
     manager = DB_Manager('database.db')
     manager.create_user_table()
-    manager.create_grapf('Санкт-Петербург', 1088080528)
+    manager.get_city('Анадырь', [])

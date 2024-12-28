@@ -39,7 +39,6 @@ def gen_markup(chat_id):
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
     markup.add(InlineKeyboardButton("Узнать", callback_data=f'cb_search_{chat_id}'), InlineKeyboardButton("На карте", callback_data=f'cb_map_{chat_id}'))
-    print(chat_id)
     return markup
 
 def bot_move(message):
@@ -52,7 +51,6 @@ def bot_move(message):
         bot.send_message(chat_id, bot_city, reply_markup=gen_markup(chat_id))
         game[chat_id]['used_cities'].add(bot_city)
         game[chat_id]['last_city'] = bot_city
-        print(used_cities)
     else:
         manager.new_score(score, chat_id)
         total_score = manager.get_score(chat_id)
@@ -101,7 +99,7 @@ def help(message):
 
 /map Город - город на карте мира 🗺
 
-/info - информация о городе 🔎
+/info Город - информация о городе 🔎
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - -'''
     bot.send_message(chat_id, text)
@@ -142,12 +140,9 @@ def total_rating(message):
     name = message.from_user.username
     users = manager.get_total_rating()
     text = '- - - - - - - РЕЙТИНГ - - - - - - -\n'
-    print(users)
     for x, user in enumerate(users):
-        print(user)
         text += f'\n{x+1}.   {user[1]}   -   {user[2]}\n'
     text += '\n- - - - - - - - - - - - - - - - - - - - - -\n'
-    print(users)
     for user in users:
         if chat_id not in user:
             user_in_rating = False
@@ -160,7 +155,7 @@ def total_rating(message):
         score = manager.get_score(chat_id)
         text += f'\n{user_rating}.   {name}   -   {score}'
 
-    print(text)
+
     bot.send_message(chat_id, text)
 
 @bot.message_handler(commands=['map'])
@@ -193,7 +188,6 @@ def score(message):
     total_score = manager.get_score(chat_id)
     max_score = manager.get_max_score(chat_id)
     rating = manager.get_user_rating(chat_id)
-    print(rating)
     text = f'''- - - - - - {message.from_user.username} - - - - - -
 
 Общий счёт: {total_score}
@@ -209,10 +203,8 @@ def score(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-    # if call.data.startswith("cb"):
     chat_id = int(call.data.split("_")[2])
     last_city = game[chat_id]['last_city']
-    print(last_city)
     bot_message = bot.send_message(chat_id, f'Ищу информацию о городе {last_city}... 🔎')
     bot.send_chat_action(chat_id, 'typing')
     if call.data.startswith("cb_search"):
@@ -234,9 +226,6 @@ def handle_message(message):
     text = ''
     used_cities = game[chat_id]['used_cities']
     last_letter = game[chat_id]['last_city'][-1].lower()
-    print(used_cities)
-    
-    print(last_letter)
     if manager.check_city(user_city) == False:
         text += f"Такого города в моей базе нет!"
         stop_game(text, message)
@@ -256,7 +245,6 @@ def handle_message(message):
         game[chat_id]['last_city'] = user_city
         game[chat_id]['used_cities'].add(user_city)
         game[chat_id]['score'] = score + 1
-        print(game[chat_id]['score'])
         bot_move(message)
 
 
