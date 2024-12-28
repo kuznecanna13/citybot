@@ -160,7 +160,6 @@ class DB_Manager:
                 horizontalalignment='right',
                 transform=ccrs.Geodetic())
             plt.savefig(path)
-            plt.show()
             return True
         else:
             return False
